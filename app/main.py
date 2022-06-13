@@ -43,7 +43,7 @@ def tester(param):
     return os.getenv(param)
 
 @app.get("/")
-def index():
+def index(request: Request):
     return templates.TemplateResponse("index.html")
 
 @app.post("/url", response_model=schemas.URLInfo)
