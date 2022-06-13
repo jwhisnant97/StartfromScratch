@@ -2,6 +2,7 @@
 import validators
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from starlette.datastructures import URL
 import os
@@ -12,6 +13,7 @@ from .database import SessionLocal , engine
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
+templates = Jinja2Templates(directory="templates")
 
 def get_db():
     db = SessionLocal()
@@ -41,8 +43,11 @@ def tester(param):
     return os.getenv(param)
 
 @app.get("/")
-def hello():
-    return {"message": "Hello World!"}
+def index():
+    try:
+        return templates.TemplateResponse("index.html")
+    except:
+        return {"message": "Try again!"}
 
 @app.post("/url", response_model=schemas.URLInfo)
 def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
