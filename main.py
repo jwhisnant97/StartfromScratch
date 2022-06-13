@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 # from starlette.datastructures import URL
 
 # from . import crud, schemas, models
-from .database import SessionLocal, engine
+from .database import SessionLocal #, engine
 # from .config import get_settings
 
 app = FastAPI()
