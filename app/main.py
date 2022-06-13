@@ -44,10 +44,7 @@ def tester(param):
 
 @app.get("/")
 def index():
-    try:
-        return templates.TemplateResponse("index.html")
-    except:
-        return {"message": "Try again!"}
+    return templates.TemplateResponse("index.html")
 
 @app.post("/url", response_model=schemas.URLInfo)
 def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
