@@ -54,10 +54,6 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
     return db_url
 
 @app.get("/{url_key}")
-def foo():
-    return "bar"
-
-@app.get("/admin/{secret_key}")
 def forward_to_target_url(
         url_key: str,
         request: Request,
@@ -72,6 +68,9 @@ def forward_to_target_url(
         return RedirectResponse(db_url.target_url)
     else:
         raise_not_found(request)
+@app.get("/admin/{secret_key}")
+def foo():
+    return "bar"
 
 @app.delete("/admin/{secret_key}")
 def foo():
