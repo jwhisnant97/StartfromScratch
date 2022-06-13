@@ -38,8 +38,8 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
         raise_bad_request(message="Your provided URL is not valid")
 
     db_url = crud.create_db_url(db=db, url=url)
-    db_url.url = key
-    db_url.admin_url = secret_key
+    db_url.url = db_url.key
+    db_url.admin_url = db_url.secret_key
 
     return db_url
 
