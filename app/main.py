@@ -1,6 +1,4 @@
 # StartfromScratch/main.py
-import secrets
-
 import validators
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.responses import RedirectResponse
@@ -9,7 +7,7 @@ from sqlalchemy.orm import Session
 # from fastapi.responses import RedirectResponse
 # from starlette.datastructures import URL
 
-from . import schemas, models
+from . import schemas, models, crud
 from .database import SessionLocal , engine
 # from .config import get_settings
 
@@ -39,15 +37,7 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
     if not validators.url(url.target_url):
         raise_bad_request(message="Your provided URL is not valid")
 
-    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    key = "".join(secrets.choice(chars) for _ in range(5))
-    secret_key = "".join(secrets.choice(chars) for _ in range(8))
-    db_url = models.URL(
-        target_url=url.target_url, key=key, secret_key=secret_key
-    )
-    db.add(db_url)
-    db.commit()
-    db.refresh(db_url)
+    db_url = crud.create_db_url(db=db, url=url)
     db_url.url = key
     db_url.admin_url = secret_key
 
@@ -64,7 +54,7 @@ def forward_to_target_url(
         .filter(models.URL.key == url_key, models.URL.is_active)
         .first()
     )
-    if db_url:
+    if db_url := crud.get_db_url_by_key(db=db, url_key=url_key):
         return RedirectResponse(db_url.target_url)
     else:
         raise_not_found(request)
