@@ -5,7 +5,6 @@ import psycopg2
 import os
 
 uri = os.getenv("DATABASE_URL")
-print("Value of DATABASE_URL env var:",uri)
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://")
 
