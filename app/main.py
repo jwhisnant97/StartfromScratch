@@ -44,7 +44,7 @@ def tester(param):
 
 @app.get("/")
 def index(request: Request):
-    return templates.TemplateResponse("index.html")
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/url", response_model=schemas.URLInfo)
 def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
