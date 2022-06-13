@@ -50,9 +50,7 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
         raise_bad_request(message="Your provided URL is not valid")
 
     db_url = crud.create_db_url(db=db, url=url)
-    return  get_admin_info(db_url)
-
-    return db_url
+    return get_admin_info(db_url)
 
 @app.get("/{url_key}")
 def forward_to_target_url(
@@ -85,5 +83,11 @@ def get_url_info(
 
 
 @app.delete("/admin/{secret_key}")
-def foo():
-    return "bar"
+def delete_url(
+        secret_key: str, request: Request, db: Session = Depends(get_db)
+):
+    if db_url := crud.deactivate_db_url_by_secret_key(db, secret_key=secret_key):
+        message = f"Successfully deleted shortened URL for  '{db_url.target_url}'"
+        return {"detail": message}
+    else:
+        raise_not_found(request)
