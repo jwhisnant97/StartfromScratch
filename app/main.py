@@ -3,7 +3,7 @@ import validators
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-# from starlette.datastructures import URL
+from starlette.datastructures import URL
 import os
 
 from . import schemas, models, crud
@@ -27,6 +27,15 @@ def raise_not_found(request):
     message = f"URL '{request.url}' doesn't exist"
     raise HTTPException(status_code=404, detail=message)
 
+def get_admin_info(db_url: models.URL) -> schemas.URLInfo:
+    base_url = URL(os.getenv("BASE_URL"))
+    admin_endpoint = app.url_path_for(
+        "administration info", secret_key=db_url.secret_key
+    )
+    db_url.url = str(base_url.replace(path=db_url.key))
+    db_url.admin_url = str(base_url.replace(path=admin_endpoint))
+    return db_url
+
 @app.get("/testenv/{param}")
 def tester(param):
     return os.getenv(param)
@@ -41,8 +50,7 @@ def create_url(url: schemas.URLBase, db: Session = Depends(get_db)):
         raise_bad_request(message="Your provided URL is not valid")
 
     db_url = crud.create_db_url(db=db, url=url)
-    db_url.url = db_url.key
-    db_url.admin_url = db_url.secret_key
+    return  get_admin_info(db_url)
 
     return db_url
 
@@ -70,9 +78,7 @@ def get_url_info(
         secret_key: str, request: Request, db:Session = Depends(get_db)
 ):
     if db_url := crud.get_db_url_by_secret_key(db, secret_key=secret_key):
-        db_url.url = db_url.key
-        db_url.admin_url = db_url.secret_key
-        return db_url
+        return get_admin_info(db_url)
     else:
         raise_not_found(request)
 
