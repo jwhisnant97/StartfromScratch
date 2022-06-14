@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"/>
+
 {% block content %}
   <h1>{% block title %} Jaydub's Crunchy URL Shortener {% endblock %}</h1>
 {% endblock %}
